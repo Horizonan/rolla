@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f7f2">
+  <meta name="description" content="Roll D4, D6, D8, D10, D12, D20, D100, or custom dice. Add modifiers and keep track of your results.">
+  <title>Rolla — Dice roller</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./fonts/fonts.css">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./extras.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="Rolla home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="7" transform="rotate(-12 16 16)"/><circle cx="11" cy="11" r="2"/><circle cx="21" cy="10" r="2"/><circle cx="16" cy="16" r="2"/><circle cx="11" cy="22" r="2"/><circle cx="22" cy="21" r="2"/></svg></span>rolla<span class="brand-dot">.</span></a>
+      <div class="header-actions"><button class="text-button" id="help-button">Help</button><span class="header-divider"></span><button id="sound-button" class="icon-button" aria-label="Turn sound on" aria-pressed="false" title="Turn sound on"></button></div>
+    </header>
+
+    <main>
+      <h1 class="sr-only" id="page-title">Dice roller</h1>
+
+      <section class="roller" aria-label="Dice roller">
+        <aside class="controls">
+          <div class="control-heading"><h2>Dice</h2><button id="save-favorite" class="icon-button favorite-star" aria-label="Save this roll as a favorite" title="Save favorite">☆</button></div>
+          <fieldset class="dice-fieldset"><legend>Type <span id="sides-caption">6 sides</span></legend><div class="dice-options" id="dice-options"></div></fieldset>
+          <div class="custom-sides" id="custom-sides-wrap" hidden><label for="custom-sides">Number of sides</label><input id="custom-sides" type="number" inputmode="numeric" min="2" max="1000" value="30"><span>Choose 2–1,000 sides</span></div>
+          <div class="control-row"><label for="dice-count">Number of dice</label><div class="stepper"><button id="count-minus" aria-label="Remove one die">−</button><input id="dice-count" type="number" min="1" max="6" value="1" aria-describedby="count-hint"><button id="count-plus" aria-label="Add one die">+</button></div></div>
+          <div class="range-wrap"><input id="count-range" type="range" min="1" max="6" value="1" aria-label="Number of dice"><div class="range-labels"><span>1 die</span><span id="count-hint">Up to 6 dice</span></div></div>
+          <div class="modifier-block"><div class="control-row"><label for="modifier">Modifier</label><div class="stepper modifier-stepper"><button id="modifier-minus" aria-label="Decrease modifier">−</button><input id="modifier" type="number" min="-100" max="100" value="0" aria-describedby="modifier-hint"><button id="modifier-plus" aria-label="Increase modifier">+</button></div></div><p id="modifier-hint" class="sr-only">Added to the combined total.</p></div>
+          <div class="setup-summary"><span>Roll</span><strong id="roll-notation">1d6</strong><span id="possible-range">Range: 1–6</span></div>
+        </aside>
+
+        <div class="table" id="table">
+          <div class="table-tools"><button id="skin-button" class="skin-button" aria-haspopup="dialog"><span class="skin-dot" id="active-skin-dot"></span><span id="active-skin-name">Ruby</span><span aria-hidden="true">⌄</span></button><button id="moments-button" class="icon-button moments-button" aria-pressed="true" aria-label="Turn lucky and unlucky effects off" title="Lucky & unlucky moments">✦</button></div>
+          <canvas id="moments-canvas" class="moments-canvas" aria-hidden="true"></canvas><div id="moment-badge" class="moment-badge" role="status" hidden></div>
+          <span class="sr-only" id="table-status">Ready</span>
+          <div class="canvas-wrap" id="canvas-wrap"><canvas id="dice-canvas" role="img" aria-label="A red 3D six-sided die on the table"></canvas><div class="canvas-fallback" id="canvas-fallback" hidden><span>—</span></div></div>
+          <div class="roll-result" aria-live="polite" aria-atomic="true"><div id="result-content"></div></div>
+          <div id="hold-controls" class="hold-controls" role="group" aria-label="Hold dice between rolls" hidden></div>
+          <div class="roll-action"><button class="roll-button" id="roll-button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" transform="rotate(-12 12 12)"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></svg><span id="roll-button-label">Roll</span></button><div class="keyboard-hint"><kbd>space</kbd> <span>to roll</span></div></div>
+          <span class="table-corner corner-tl" aria-hidden="true"></span><span class="table-corner corner-br" aria-hidden="true"></span>
+        </div>
+      </section>
+
+      <section class="favorites-section" aria-labelledby="favorites-heading"><div class="section-heading"><h2 id="favorites-heading">Favorites <span id="favorites-count">0</span></h2><span id="favorites-storage" class="storage-hint">This session</span></div><div id="favorites-list" class="favorites-list"></div></section>
+      <section class="history-section" aria-labelledby="history-heading" hidden><div class="section-heading"><h2 id="history-heading">History <span id="history-count">0</span></h2><button id="clear-history" class="text-button">Clear</button></div><div id="history-list" class="history-list"></div></section>
+    </main>
+    <footer class="site-footer"><span>rolla.</span><nav aria-label="Legal"><a href="./privacy.html">Privacy</a><button class="text-button" data-cookie-settings>Cookie settings</button><a href="./imprint.html">Imprint</a><a href="https://github.com/Horizonan/rolla" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav></footer>
+  </div>
+
+  <dialog id="help-dialog" aria-labelledby="help-title"><button class="dialog-close icon-button" data-close-dialog aria-label="Close instructions">×</button><h2 id="help-title">Help</h2><p>Choose a die and quantity. The modifier is added once to the total. Press <kbd>space</kbd> or <kbd>R</kbd> to roll.</p><p>After a roll, tap a die or its numbered button to hold it. Held dice stay put while the others roll. Tap again to release.</p><p>Save favorite combinations with ☆. Natural 20s, natural 1s, all-highest rolls and all-ones get special effects. Toggle ✦ to switch those effects off.</p><p>Results use independent secure randomness. The last 30 rolls, up to 12 favorites, and settings can be saved on this device with your permission.</p><button class="dialog-done" data-close-dialog autofocus>Done</button></dialog>
+  <dialog id="skin-dialog" aria-labelledby="skin-title"><button class="dialog-close icon-button" data-close-dialog aria-label="Close dice skins">×</button><h2 id="skin-title">Dice skins</h2><div id="skin-options" class="skin-options" role="group" aria-label="Dice skins"></div></dialog>
+  <dialog id="favorite-dialog" aria-labelledby="favorite-title"><button class="dialog-close icon-button" data-close-dialog aria-label="Close favorite">×</button><h2 id="favorite-title">Save a favorite</h2><form id="favorite-form"><label for="favorite-name">Name</label><input id="favorite-name" type="text" maxlength="32" required autocomplete="off" placeholder="Friday night dice"><p id="favorite-notation"></p><p id="favorite-storage-note"></p><button class="dialog-done" type="submit">Save favorite</button></form></dialog>
+  <aside id="cookie-banner" class="cookie-banner" aria-labelledby="cookie-title" hidden><div><h2 id="cookie-title">Save on this device?</h2><p>Rolla by Daniel Dietachmair can remember your favorites, history and settings in this browser. No analytics or advertising cookies. <a href="./privacy.html">Privacy policy</a></p></div><div class="cookie-actions"><button data-consent="essential">Essential only</button><button data-consent="allow">Allow saving</button></div></aside>
+  <dialog id="cookie-dialog" aria-labelledby="cookie-settings-title"><button class="dialog-close icon-button" data-close-dialog aria-label="Close cookie settings">×</button><h2 id="cookie-settings-title">Cookie settings</h2><p>Rolla uses no analytics or advertising cookies. Your privacy choice is remembered for 180 days.</p><p>Allow saving to keep favorites, the last 30 rolls and preferences on this device. Essential only removes that saved data; you can still use everything for this session.</p><p id="storage-status" role="status"></p><div class="cookie-actions"><button data-consent="essential">Essential only</button><button data-consent="allow">Allow saving</button></div><a class="privacy-link" href="./privacy.html">Privacy policy</a></dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <script type="module" src="./consent.js"></script>
+</body>
+</html>
