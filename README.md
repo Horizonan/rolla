@@ -15,7 +15,7 @@ With Node.js installed, run `node server.mjs` in this folder and open <http://12
 - Last 30 rolls saved in this browser; click a previous roll to reuse its setup.
 - Optional synthesized impact sounds, Space/R shortcuts, and reduced-motion support.
 - Tap dice or use their hold buttons to keep results and reroll the others. Held dice remain stationary.
-- Six dice skins: Ruby, Obsidian, Pearl, Jade, Ocean, and Amethyst.
+- Nine dice skins: Ruby, Obsidian, Pearl, Jade, Ocean, Amethyst, Unicorn, Blockcraft, and Galaxy. The three themed skins have original, locally generated artwork; Blockcraft adds pixel textures and square pips.
 - Golden sparks for natural 20s, a shatter effect for natural 1s, and matching-dice moments. Effects and sound can be switched off.
 - Up to 12 named favorite rolls, with reuse, rename and removal.
 - Consent-controlled local saving, a privacy policy, and an imprint. The game works without optional storage.

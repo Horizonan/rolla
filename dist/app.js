@@ -1,4 +1,5 @@
 import { DiceRenderer } from './dice.js';
+import {skinTexture} from './skin-art.js';
 import {skins,cleanFavorites,setupKey,rollValues,getMoment} from './features.js';
 import {storage} from './storage.js';
 import {MomentEffects} from './moments.js';
@@ -134,8 +135,16 @@ function renderHolds(){
 function syncSkin(){
   renderer?.setSkin(skins[state.skin]);$('active-skin-name').textContent=skins[state.skin].name;$('active-skin-dot').style.background=skins[state.skin].swatch;
   $('skin-button').setAttribute('aria-label',`Dice skin: ${skins[state.skin].name}. Change skin`);
+  if(!state.values.length)$('dice-canvas').setAttribute('aria-label',`${state.count} ${skins[state.skin].name} 3D ${state.sides}-sided ${state.count===1?'die':'dice'} on the table, ready to roll`);
   $('skin-options').replaceChildren();
-  for(const [key,skin]of Object.entries(skins)){const b=document.createElement('button');b.className='skin-option';b.setAttribute('aria-pressed',String(state.skin===key));b.setAttribute('aria-label',skin.name);const sample=document.createElement('span');sample.className='skin-sample';sample.style.setProperty('--skin',skin.swatch);sample.style.setProperty('--pip',skin.ink);sample.innerHTML='<i></i><i></i><i></i>';const label=document.createElement('span');label.textContent=skin.name;b.append(sample,label);b.onclick=()=>{state.skin=key;save('rolla.skin',key);syncSkin();$('skin-dialog').close();};$('skin-options').append(b);}
+  for(const [key,skin]of Object.entries(skins)){
+    const b=document.createElement('button');b.className='skin-option';b.setAttribute('aria-pressed',String(state.skin===key));b.setAttribute('aria-label',skin.name);
+    const sample=document.createElement('span');sample.className='skin-sample';sample.dataset.theme=skin.theme||'';sample.setAttribute('aria-hidden','true');sample.style.setProperty('--skin',skin.swatch);sample.style.setProperty('--pip',skin.ink);
+    if(skin.theme){const texture=skinTexture(skin.theme),art=document.createElement('canvas');art.width=256;art.height=256;art.getContext('2d').drawImage(texture,0,0);sample.append(art);}
+    for(let i=0;i<3;i++)sample.append(document.createElement('i'));
+    const label=document.createElement('span');label.textContent=skin.name;b.append(sample,label);
+    b.onclick=()=>{state.skin=key;save('rolla.skin',key);syncSkin();$('skin-dialog').close();};$('skin-options').append(b);
+  }
 }
 $('skin-button').onclick=()=>$('skin-dialog').showModal();
 function syncMoments(){const b=$('moments-button');b.setAttribute('aria-pressed',String(state.moments));b.setAttribute('aria-label',`Turn lucky and unlucky effects ${state.moments?'off':'on'}`);}

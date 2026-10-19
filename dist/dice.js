@@ -1,5 +1,6 @@
 // A tiny, dependency-free 3D renderer. All geometry is projected into a 2D canvas.
 // Roll outcomes are supplied by the app; visual motion never determines randomness.
+import {paintFace} from './skin-art.js';
 export const add=(a,b)=>a.map((v,i)=>v+b[i]);
 export const sub=(a,b)=>a.map((v,i)=>v-b[i]);
 export const mul=(a,k)=>a.map(v=>v*k);
@@ -196,16 +197,30 @@ export class DiceRenderer{
       const spec=Math.pow(Math.max(0,dot(f.n,norm([-.25,.6,1]))),12)*this.skin.gloss;
       if(spec>.02){ctx.fillStyle=`rgba(${this.skin.glint.join(',')},${spec})`;ctx.fill();}
       const center=this.project(f.c,cx,cy,scale),u=this.project(add(f.c,rotate(f.u,q)),cx,cy,scale),v=this.project(add(f.c,rotate(f.v,q)),cx,cy,scale);
-      ctx.save();ctx.setTransform(this.canvas.width/this.w,0,0,this.canvas.height/this.h,0,0);ctx.transform(u[0]-center[0],u[1]-center[1],-(v[0]-center[0]),-(v[1]-center[1]),center[0],center[1]);
+      ctx.save();ctx.setTransform(this.canvas.width/this.w,0,0,this.canvas.height/this.h,0,0);
+      // Clip in screen space, then anchor the painting to the rotating face.
+      ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath();ctx.clip();
+      ctx.transform(u[0]-center[0],u[1]-center[1],-(v[0]-center[0]),-(v[1]-center[1]),center[0],center[1]);
+      if(this.skin.theme){
+        const local=f.vs.map(p=>[dot(sub(p,f.center),f.u),-dot(sub(p,f.center),f.v)]);
+        const left=Math.min(...local.map(p=>p[0])),top=Math.min(...local.map(p=>p[1]));
+        paintFace(ctx,this.skin.theme,{left,top,width:Math.max(...local.map(p=>p[0]))-left,height:Math.max(...local.map(p=>p[1]))-top},brightness);
+      }
       // Retain side markings for depth, but give the upper face full contrast.
       ctx.globalAlpha=settled&&f.up<.99?.32:1;
       if(this.sides===6){
-        for(const [px,py]of pips[f.value]){const x=px*.43,y=py*.43;ctx.beginPath();ctx.arc(x,y,.127,0,Math.PI*2);ctx.fillStyle=this.skin.shade;ctx.fill();ctx.beginPath();ctx.arc(x+.004,y+.021,.112,0,Math.PI*2);ctx.fillStyle=this.skin.ink;ctx.fill();}
+        for(const [px,py]of pips[f.value]){
+          const x=px*.43,y=py*.43;ctx.fillStyle=this.skin.shade;
+          if(this.skin.theme==='blockcraft'){ctx.fillRect(x-.145,y-.145,.29,.29);ctx.fillStyle=this.skin.ink;ctx.fillRect(x-.108,y-.092,.216,.216);}
+          else{ctx.beginPath();ctx.arc(x,y,.127,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x+.004,y+.021,.112,0,Math.PI*2);ctx.fillStyle=this.skin.ink;ctx.fill();}
+        }
       }else{
         const standard=[4,6,8,10,12,20].includes(this.sides);
         const value=!standard&&result&&f.value===1?result:(this.sides===100?f.value*10:((f.value-1)%this.sides)+1);
         const size=this.sides===4?.48:this.sides===20?.38:this.sides===8?.44:.46;
-        ctx.font=`600 ${size}px 'DM Sans',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=this.skin.shade;ctx.fillText(String(value),.006,.02);ctx.fillStyle=this.skin.ink;ctx.fillText(String(value),0,0);
+        ctx.font=`600 ${size}px ${this.skin.theme==='blockcraft'?'monospace':"'DM Sans',sans-serif"}`;ctx.textAlign='center';ctx.textBaseline='middle';
+        if(this.skin.theme){ctx.strokeStyle=this.skin.shade;ctx.lineWidth=.045;ctx.lineJoin='round';ctx.strokeText(String(value),0,0);}
+        ctx.fillStyle=this.skin.shade;ctx.fillText(String(value),.006,.02);ctx.fillStyle=this.skin.ink;ctx.fillText(String(value),0,0);
         if(value===6||value===9){ctx.fillRect(-.1,.22,.2,.018);}
       }
       ctx.restore();
